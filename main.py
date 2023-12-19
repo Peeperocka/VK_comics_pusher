@@ -14,7 +14,7 @@ def download_img(url, filepath):
         file.write(response.content)
 
 
-def get_comics(comics_num):
+def get_comic(comics_num):
     url = f'https://xkcd.com/{comics_num}/info.0.json'
     filename = 'images/img.png'
 
