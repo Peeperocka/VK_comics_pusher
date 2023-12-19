@@ -6,6 +6,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
+def handle_vk_response(response):
+
+    if 'error' in response.json():
+        error = response.json()['error']
+        print(error)
+        raise requests.HTTPError(
+            error['error_code'],
+            error['error_msg'],
+        )
+
+
 def download_img(url, filepath):
     response = requests.get(url)
     response.raise_for_status()
@@ -47,6 +58,7 @@ def get_download_url(group_id, access_token):
 
     response = requests.get(url, params)
     response.raise_for_status()
+    handle_vk_response(response)
 
     return response.json()['response']['upload_url']
 
@@ -58,26 +70,32 @@ def push_image_to_server(filepath, upload_url):
             'photo': f
         }
 
-        response = requests.post(upload_url, files=files)
-        response.raise_for_status()
+    response = requests.post(upload_url, files=files)
+    response.raise_for_status()
+    handle_vk_response(response)
 
-    return response.json()
+    response_data = response.json()
+
+    return response_data['hash'], response_data['photo'], response_data['server']
 
 
-def save_wall_photo(response_data, access_token, group_id):
+def save_wall_photo(
+        server_image_hash, server_image_photo_data,
+        server_image_server_data, access_token, group_id):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
 
     params = {
-        'hash': response_data['hash'],
+        'hash': server_image_hash,
+        'photo': server_image_photo_data,
+        'server': server_image_server_data['server'],
         'access_token': access_token,
         'group_id': group_id,
         'v': 5.154,
-        'photo': response_data['photo'],
-        'server': response_data['server'],
     }
 
     response = requests.post(url, params)
     response.raise_for_status()
+    handle_vk_response(response)
 
     return response.json()['response']
 
@@ -96,6 +114,7 @@ def post_on_wall(owner_id, media_id, access_token, alt):
 
     response = requests.post(url, params)
     response.raise_for_status()
+    handle_vk_response(response)
 
 
 if __name__ == '__main__':
@@ -110,10 +129,21 @@ if __name__ == '__main__':
     last_comics_num = get_last_comics_num()
 
     try:
-        comics_text = get_comics(random.randint(0, last_comics_num))
+        comics_text = get_comic(random.randint(0, last_comics_num))
         download_url = get_download_url(group_id, access_token)
-        response_data = push_image_to_server(filepath, download_url)
-        response = save_wall_photo(response_data, access_token, group_id)
+
+        (server_image_hash,
+         server_image_photo_data,
+         server_image_server_data) = push_image_to_server(
+            filepath, download_url
+        )
+
+        response = save_wall_photo(
+            server_image_hash, server_image_photo_data,
+            server_image_server_data, access_token,
+            group_id
+        )
+
         post_on_wall(
             response[0]['owner_id'],
             response[0]['id'],
@@ -122,4 +152,4 @@ if __name__ == '__main__':
         )
 
     finally:
-        filepath.unlink()
+        filepath.unlink(missing_ok=True)
