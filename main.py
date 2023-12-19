@@ -2,8 +2,16 @@ import os
 import random
 import requests
 
+from pathlib import Path
 from dotenv import load_dotenv
-from supporting_scripts import download_img
+
+
+def download_img(url, filepath):
+    response = requests.get(url)
+    response.raise_for_status()
+
+    with open(filepath, 'wb') as file:
+        file.write(response.content)
 
 
 def get_comics(comics_num):
@@ -92,23 +100,26 @@ def post_on_wall(owner_id, media_id, access_token, alt):
 
 if __name__ == '__main__':
     load_dotenv()
-    os.makedirs('images/', exist_ok=True)
+    Path('images').mkdir(exist_ok=True)
 
     access_token = os.environ['VK_IMPLICIT_FLOW_TOKEN']
     group_id = os.environ['VK_GROUP_ID']
 
-    filepath = 'images/img.png'
+    filepath = Path('images') / 'img.png'
 
     last_comics_num = get_last_comics_num()
-    comics_text = get_comics(random.randint(0, last_comics_num))
-    download_url = get_download_url(group_id, access_token)
-    response_data = push_image_to_server(filepath, download_url)
-    response = save_wall_photo(response_data, access_token, group_id)
-    post_on_wall(
-        response[0]['owner_id'],
-        response[0]['id'],
-        access_token,
-        comics_text
-    )
 
-    os.remove('images/img.png')
+    try:
+        comics_text = get_comics(random.randint(0, last_comics_num))
+        download_url = get_download_url(group_id, access_token)
+        response_data = push_image_to_server(filepath, download_url)
+        response = save_wall_photo(response_data, access_token, group_id)
+        post_on_wall(
+            response[0]['owner_id'],
+            response[0]['id'],
+            access_token,
+            comics_text
+        )
+
+    finally:
+        filepath.unlink()
