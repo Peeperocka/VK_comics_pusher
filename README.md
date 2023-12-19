@@ -18,7 +18,6 @@ pip install -r requirements.txt
 Create `.env` file with this variable:
 
 - `ACCESS_TOKEN=your access token`. You can get it [there](https://dev.vk.com/ru/api/access-token/implicit-flow-user).
-- `APP_ID=your app id`. You can get it [there](https://dev.vk.com/ru/?ref=old_portal).
 - `GROUP_ID=your group id`. You can get it [there](https://regvk.com/id/)
 
 ## Run

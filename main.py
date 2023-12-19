@@ -88,16 +88,14 @@ def post_on_wall(owner_id, media_id, access_token, alt):
 
     response = requests.post(url, params)
     response.raise_for_status()
-    print(response.text)
 
 
 if __name__ == '__main__':
     load_dotenv()
     os.makedirs('images/', exist_ok=True)
 
-    access_token = os.environ['ACCESS_TOKEN']
-    app_id = os.environ['APP_ID']
-    group_id = os.environ['GROUP_ID']
+    access_token = os.environ['VK_IMPLICIT_FLOW_TOKEN']
+    group_id = os.environ['VK_GROUP_ID']
 
     filepath = 'images/img.png'
 
