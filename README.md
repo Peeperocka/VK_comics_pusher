@@ -17,8 +17,8 @@ pip install -r requirements.txt
 
 Create `.env` file with this variable:
 
-- `ACCESS_TOKEN=your access token`. You can get it [there](https://dev.vk.com/ru/api/access-token/implicit-flow-user).
-- `GROUP_ID=your group id`. You can get it [there](https://regvk.com/id/)
+- `VK_IMPLICIT_FLOW_TOKEN=your access token`. You can get it [there](https://dev.vk.com/ru/api/access-token/implicit-flow-user).
+- `VK_GROUP_ID=your group id`. You can get it [there](https://regvk.com/id/)
 
 ## Run
 
@@ -32,4 +32,6 @@ python main.py
 
 ## Notes
 
-You can `delete` line `116 code` so image won't delete automatically
+You can `delete` line `155` so image won't delete automatically.
+
+Working with `VK` API, program will `raise HTTPError` exception if errors were found in response
