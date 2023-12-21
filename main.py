@@ -87,7 +87,7 @@ def save_wall_photo(
     params = {
         'hash': server_image_hash,
         'photo': server_image_photo,
-        'server': server_image_server['server'],
+        'server': server_image_server,
         'access_token': access_token,
         'group_id': group_id,
         'v': 5.154,
